@@ -163,6 +163,14 @@ private val dwm: DwmApi by lazy { Native.load("dwmapi", DwmApi::class.java) }
 
 enum class CaptionButton { Minimize, Maximize, Close }
 
+/** Dark native title bar for a secondary window that keeps the system frame. No-op off Windows. */
+fun useDarkTitleBar(windowHandle: Long) {
+    if (!WindowsCaption.isSupported || windowHandle == 0L) return
+    runCatching {
+        dwm.DwmSetWindowAttribute(Pointer(windowHandle), DWMWA_USE_IMMERSIVE_DARK_MODE, IntByReference(1), 4)
+    }
+}
+
 /** Rect in client pixels. */
 private data class PxRect(val l: Int, val t: Int, val r: Int, val b: Int) {
     fun contains(x: Int, y: Int) = x in l until r && y in t until b

@@ -36,7 +36,9 @@ import coil3.compose.AsyncImage
 import com.maxrave.domain.mediaservice.handler.MediaPlayerHandler
 import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.geras.lyrics.GerasLyricsView
+import com.maxrave.simpmusic.geras.lyrics.GerasKaraoke
 import com.maxrave.simpmusic.ui.icon.Close
+import com.maxrave.simpmusic.ui.icon.OpenInNew
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.viewModel.SharedViewModel
 import com.maxrave.simpmusic.viewModel.UIEvent
@@ -50,6 +52,7 @@ import simpmusic.composeapp.generated.resources.geras_about_published
 import simpmusic.composeapp.generated.resources.geras_about_album
 import simpmusic.composeapp.generated.resources.geras_about_views
 import simpmusic.composeapp.generated.resources.geras_close_panel
+import simpmusic.composeapp.generated.resources.geras_karaoke_window
 import simpmusic.composeapp.generated.resources.geras_no_lyrics
 import simpmusic.composeapp.generated.resources.geras_nothing_playing
 import simpmusic.composeapp.generated.resources.geras_queue_empty
@@ -85,6 +88,16 @@ fun GerasRightPanel(
             TabChip(stringResource(Res.string.geras_tab_queue), tab == RightPanelTab.Queue) { onTabChange(RightPanelTab.Queue) }
             TabChip(stringResource(Res.string.geras_tab_about), tab == RightPanelTab.About) { onTabChange(RightPanelTab.About) }
             Box(Modifier.weight(1f))
+            if (tab == RightPanelTab.Lyrics && GerasKaraoke.available) {
+                IconButton(onClick = { GerasKaraoke.isOpen = !GerasKaraoke.isOpen }, modifier = Modifier.size(32.dp)) {
+                    Icon(
+                        SimpIcons.OpenInNew,
+                        contentDescription = stringResource(Res.string.geras_karaoke_window),
+                        tint = if (GerasKaraoke.isOpen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
             IconButton(onClick = onClose, modifier = Modifier.size(32.dp)) {
                 Icon(
                     SimpIcons.Close,

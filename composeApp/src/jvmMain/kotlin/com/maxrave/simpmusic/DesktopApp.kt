@@ -47,6 +47,8 @@ import com.maxrave.logger.Logger
 import com.maxrave.simpmusic.di.viewModelModule
 import com.maxrave.simpmusic.extension.DesktopWindowChrome
 import com.maxrave.simpmusic.ui.component.CustomTitleBar
+import com.maxrave.simpmusic.geras.lyrics.GerasKaraoke
+import com.maxrave.simpmusic.geras.window.KaraokeWindow
 import com.maxrave.simpmusic.ui.mini_player.MiniPlayerManager
 import com.maxrave.simpmusic.ui.mini_player.MiniPlayerWindow
 import com.maxrave.simpmusic.ui.theme.isDarkTheme
@@ -551,6 +553,15 @@ fun runDesktopApp(args: Array<String> = emptyArray()) {
                 onCloseRequest = {
                     MiniPlayerManager.isOpen = false
                 },
+            )
+        }
+
+        // Geras: detached karaoke window, opened from the lyrics panel.
+        LaunchedEffect(Unit) { GerasKaraoke.available = true }
+        if (GerasKaraoke.isOpen) {
+            KaraokeWindow(
+                sharedViewModel = sharedViewModel,
+                onCloseRequest = { GerasKaraoke.isOpen = false },
             )
         }
     }

@@ -77,8 +77,10 @@ Ctrl+Q; lyrics on a RICH_SYNCED track (glow/swell, gap dots) and in the fullscre
 ## Next, in order
 
 1. Owner eyeballs the "not yet verified" list above.
-2. Animated lyrics, remaining: F11 fullscreen + always-on-top karaoke window, share card PNG,
-   translation toggle in the panel.
+2. Animated lyrics, remaining: share card PNG, translation toggle in the panel. Karaoke window
+   is in (`geras/window/KaraokeWindow.kt`, opened from the lyrics tab; native frame, always on
+   top, F11/Esc/Space) — seen opening topmost with lyrics; F11, Esc, the dark title bar and the
+   final type scale still need the owner's eye.
 3. Sound: speed chip popover (0.5–2.0x step 0.01, pitch, linked/unlinked), presets
    Slowed+Reverb / Sped Up / Nightcore / Daycore, bass boost, EQ curve editor with per-device
    presets + A/B, per-track memory, exclusive WASAPI. Respect upstream's crossfade lock on

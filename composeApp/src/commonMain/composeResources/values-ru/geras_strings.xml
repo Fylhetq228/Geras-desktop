@@ -21,6 +21,8 @@
     <string name="geras_volume">Громкость</string>
     <string name="geras_output_device">Устройство вывода</string>
     <string name="geras_close_panel">Закрыть панель</string>
+    <string name="geras_karaoke_window">Окно караоке</string>
+    <string name="geras_karaoke_hint">F11 — на весь экран · Esc — выйти · Пробел — пауза</string>
     <string name="geras_audio">Аудио</string>
     <string name="geras_video">Видео</string>
     <string name="geras_no_video">У этого трека нет клипа</string>
