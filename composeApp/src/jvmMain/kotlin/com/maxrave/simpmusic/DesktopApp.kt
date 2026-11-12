@@ -1,5 +1,10 @@
 package com.maxrave.simpmusic
 
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.runtime.CompositionLocalProvider
 import com.maxrave.simpmusic.geras.window.LocalWindowCaption
 import com.maxrave.simpmusic.geras.window.WindowsCaption
@@ -372,6 +377,18 @@ fun runDesktopApp(args: Array<String> = emptyArray()) {
             transparent = !nativeTitleBar,
             state = windowState,
             visible = isVisible,
+            // Geras: Ctrl+Q quits for real (closing the window only hides it to the tray),
+            // so the files of a portable install can be replaced by an update.
+            onPreviewKeyEvent = { event ->
+                if (event.type == KeyEventType.KeyDown && event.isCtrlPressed && event.key == Key.Q) {
+                    mediaPlayerHandler.release()
+                    Sentry.endSession()
+                    exitApplication()
+                    true
+                } else {
+                    false
+                }
+            },
         ) {
             // Returning from macOS System Settings is the only reliable time to learn whether the
             // user enabled notifications after denying the one-shot system prompt.
