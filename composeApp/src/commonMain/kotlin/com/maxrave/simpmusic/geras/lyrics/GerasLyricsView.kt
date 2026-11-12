@@ -90,10 +90,8 @@ fun GerasLyricsView(
     anchor: Float = 0.25f,
     dataStoreManager: DataStoreManager = koinInject(),
 ) {
-    val lyrics =
-        remember(lyricsData.lyrics, lyricsData.translatedLyrics?.first) {
-            buildGerasLyrics(lyricsData.lyrics, lyricsData.translatedLyrics?.first)
-        }
+    val translated = lyricsData.translatedLyrics?.first.takeIf { GerasLyricsPrefs.showTranslation }
+    val lyrics = remember(lyricsData.lyrics, translated) { buildGerasLyrics(lyricsData.lyrics, translated) }
     val base = typo().headlineLarge
     val bodyStyle = typo().bodyMedium
     val style =

@@ -23,6 +23,8 @@
     <string name="geras_close_panel">Close panel</string>
     <string name="geras_karaoke_window">Karaoke window</string>
     <string name="geras_share_lyrics">Share lyrics as an image</string>
+    <string name="geras_show_translation">Show translation</string>
+    <string name="geras_hide_translation">Hide translation</string>
     <string name="geras_karaoke_hint">F11 — fullscreen · Esc — exit · Space — play/pause</string>
     <string name="geras_audio">Audio</string>
     <string name="geras_video">Video</string>

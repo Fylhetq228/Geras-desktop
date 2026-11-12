@@ -41,9 +41,12 @@ import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.geras.lyrics.GerasLyricsView
 import com.maxrave.simpmusic.geras.lyrics.GerasKaraoke
 import com.maxrave.simpmusic.ui.icon.Close
+import com.maxrave.simpmusic.geras.lyrics.GerasLyricsPrefs
 import com.maxrave.simpmusic.geras.lyrics.GerasShareLyrics
 import com.maxrave.simpmusic.ui.icon.OpenInNew
 import com.maxrave.simpmusic.ui.icon.Share
+import com.maxrave.simpmusic.ui.icon.Subtitles
+import com.maxrave.simpmusic.ui.icon.SubtitlesOff
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.viewModel.SharedViewModel
 import com.maxrave.simpmusic.viewModel.UIEvent
@@ -58,7 +61,9 @@ import simpmusic.composeapp.generated.resources.geras_about_album
 import simpmusic.composeapp.generated.resources.geras_about_views
 import simpmusic.composeapp.generated.resources.geras_close_panel
 import simpmusic.composeapp.generated.resources.geras_karaoke_window
+import simpmusic.composeapp.generated.resources.geras_hide_translation
 import simpmusic.composeapp.generated.resources.geras_share_lyrics
+import simpmusic.composeapp.generated.resources.geras_show_translation
 import simpmusic.composeapp.generated.resources.geras_no_lyrics
 import simpmusic.composeapp.generated.resources.geras_nothing_playing
 import simpmusic.composeapp.generated.resources.geras_queue_empty
@@ -97,6 +102,20 @@ fun GerasRightPanel(
             TabChip(stringResource(Res.string.geras_tab_about), tab == RightPanelTab.About) { onTabChange(RightPanelTab.About) }
             Box(Modifier.weight(1f))
             if (tab == RightPanelTab.Lyrics) {
+                val screenData by sharedViewModel.nowPlayingScreenData.collectAsStateWithLifecycle()
+                // Only offered when the track actually came with a translation to show or hide.
+                if (screenData.lyricsData?.translatedLyrics != null) {
+                    val on = GerasLyricsPrefs.showTranslation
+                    IconButton(onClick = { GerasLyricsPrefs.showTranslation = !on }, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            if (on) SimpIcons.Subtitles else SimpIcons.SubtitlesOff,
+                            contentDescription =
+                                stringResource(if (on) Res.string.geras_hide_translation else Res.string.geras_show_translation),
+                            tint = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                }
                 IconButton(onClick = { showShare = true }, modifier = Modifier.size(32.dp)) {
                     Icon(
                         SimpIcons.Share,

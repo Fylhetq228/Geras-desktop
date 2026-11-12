@@ -48,6 +48,7 @@ import com.maxrave.simpmusic.di.viewModelModule
 import com.maxrave.simpmusic.extension.DesktopWindowChrome
 import com.maxrave.simpmusic.ui.component.CustomTitleBar
 import com.maxrave.simpmusic.geras.lyrics.GerasKaraoke
+import com.maxrave.simpmusic.geras.lyrics.GerasLyricsPrefs
 import com.maxrave.simpmusic.geras.window.KaraokeWindow
 import com.maxrave.simpmusic.ui.mini_player.MiniPlayerManager
 import com.maxrave.simpmusic.ui.mini_player.MiniPlayerWindow
@@ -557,7 +558,14 @@ fun runDesktopApp(args: Array<String> = emptyArray()) {
         }
 
         // Geras: detached karaoke window, opened from the lyrics panel.
-        LaunchedEffect(Unit) { GerasKaraoke.available = true }
+        LaunchedEffect(Unit) {
+            GerasKaraoke.available = true
+            // Geras lyrics view options live outside upstream's DataStore; persisted here.
+            val prefs = java.util.prefs.Preferences.userRoot().node("Geras/Lyrics")
+            GerasLyricsPrefs.showTranslation = prefs.getBoolean("showTranslation", true)
+            androidx.compose.runtime.snapshotFlow { GerasLyricsPrefs.showTranslation }
+                .collect { prefs.putBoolean("showTranslation", it) }
+        }
         if (GerasKaraoke.isOpen) {
             KaraokeWindow(
                 sharedViewModel = sharedViewModel,
