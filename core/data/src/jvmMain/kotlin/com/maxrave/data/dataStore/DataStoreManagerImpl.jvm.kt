@@ -1,5 +1,6 @@
 package com.maxrave.data.dataStore
 
+import com.maxrave.common.AppDirs
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.ReadScope
@@ -20,7 +21,7 @@ actual fun createDataStoreInstance(): DataStore<Preferences> =
         storage =
             ReadsWaitForWritesStorage(
                 FileStorage(PreferencesFileSerializer) {
-                    File(getHomeFolderPath(listOf(".simpmusic")), "$SETTINGS_FILENAME.preferences_pb").absoluteFile
+                    File(getHomeFolderPath(listOf(AppDirs.DATA_DIR_NAME)), "$SETTINGS_FILENAME.preferences_pb").absoluteFile
                 },
             ),
     )

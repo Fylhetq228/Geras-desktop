@@ -1,5 +1,6 @@
 package com.simpmusic.media_jvm.mpv
 
+import com.maxrave.common.AppDirs
 import com.maxrave.domain.mediaservice.automix.TrackStructure
 import com.maxrave.domain.mediaservice.automix.TrackStructureAnalyzer
 import com.maxrave.domain.mediaservice.player.WAVEFORM_BARS_PER_SECOND
@@ -53,7 +54,7 @@ internal object MpvWaveformReader {
     private val UNSAFE_FILE_CHARS = Regex("[^A-Za-z0-9_-]")
 
     private val dir: File by lazy {
-        File(System.getProperty("user.home"), ".simpmusic" + File.separator + "waveforms").apply { mkdirs() }
+        File(System.getProperty("user.home"), AppDirs.DATA_DIR_NAME + File.separator + "waveforms").apply { mkdirs() }
     }
 
     /**

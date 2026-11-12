@@ -1,5 +1,6 @@
 package com.simpmusic.media_jvm.download
 
+import com.maxrave.common.AppDirs
 import com.maxrave.common.MERGING_DATA_TYPE
 import com.maxrave.domain.data.entities.DownloadState
 import com.maxrave.domain.manager.DataStoreManager
@@ -220,4 +221,4 @@ internal class DownloadUtils(
     }
 }
 
-fun getDownloadPath(): String = System.getProperty("user.home") + File.separator + ".simpmusic" + File.separator + "downloads"
+fun getDownloadPath(): String = System.getProperty("user.home") + File.separator + AppDirs.DATA_DIR_NAME + File.separator + "downloads"
