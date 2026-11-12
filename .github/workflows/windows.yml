@@ -37,12 +37,12 @@ jobs:
           $sdk = $env:ANDROID_HOME -replace '\\', '\\'
           "sdk.dir=$sdk" | Out-File -Encoding ascii local.properties
 
-      - name: Stage libmpv (Windows x64)
+      - name: Stage libmpv (prebuilt, checksum-pinned)
         shell: bash
         # First Gradle call also downloads the wrapper distribution; retry transient network failures.
         run: |
           for i in 1 2 3; do
-            ./gradlew :composeApp:mpvSetupWindowsX64Ci -PisFullBuild=false --no-configuration-cache --stacktrace && exit 0
+            ./gradlew :composeApp:mpvSetupAll -PisFullBuild=false --no-configuration-cache --stacktrace && exit 0
             echo "attempt $i failed, retrying in 20s"; sleep 20
           done
           exit 1
