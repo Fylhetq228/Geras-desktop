@@ -1,3 +1,5 @@
+> **Geras fork:** read `GERAS.md` first. Where it conflicts with this file (reply language, building, workflow), GERAS.md wins.
+
 # CLAUDE.md - SimpMusic Project Guide for AI Agents
 
 ## 🌐 Language Rule
