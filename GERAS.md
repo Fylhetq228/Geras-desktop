@@ -77,7 +77,9 @@ Ctrl+Q; lyrics on a RICH_SYNCED track (glow/swell, gap dots) and in the fullscre
 ## Next, in order
 
 1. Owner eyeballs the "not yet verified" list above.
-2. Animated lyrics, remaining: translation toggle in the panel. Share card reuses upstream's
+2. Animated lyrics: all sub-items are in; what is left is the owner's eye on them. Translation
+   toggle = `GerasLyricsPrefs.showTranslation` (display only, saved in java.util.prefs, button
+   appears in the lyrics tab when the track has a translation). Share card reuses upstream's
    `ShareLyricsSheet` via `geras/lyrics/GerasShareLyrics.kt` (share icon in the lyrics tab; PNG
    goes to Downloads and the folder opens) — compiles and runs, not yet seen on screen. Karaoke window
    is in (`geras/window/KaraokeWindow.kt`, opened from the lyrics tab; native frame, always on
