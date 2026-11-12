@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic.viewModel
 
+import com.maxrave.common.AppDirs
 import com.eygraber.uri.Uri
 import com.maxrave.common.DB_NAME
 import com.maxrave.common.SETTINGS_FILENAME
@@ -47,7 +48,7 @@ actual suspend fun restoreNative(
             Logger.d("BackupRestore", "Processing entry: ${entry.name}")
             when {
                 entry.name == "$SETTINGS_FILENAME.preferences_pb" -> {
-                    File(getHomeFolderPath(listOf(".simpmusic")), "$SETTINGS_FILENAME.preferences_pb")
+                    File(getHomeFolderPath(listOf(AppDirs.DATA_DIR_NAME)), "$SETTINGS_FILENAME.preferences_pb")
                         .outputStream()
                         .use { outputStream ->
                             inputStream.copyTo(outputStream)
@@ -82,7 +83,7 @@ actual suspend fun backupNative(
 ) {
     FileOutputStream(File(uri.toString())).use {
         it.buffered().zipOutputStream().use { outputStream ->
-            File(getHomeFolderPath(listOf(".simpmusic")), "$SETTINGS_FILENAME.preferences_pb")
+            File(getHomeFolderPath(listOf(AppDirs.DATA_DIR_NAME)), "$SETTINGS_FILENAME.preferences_pb")
                 .inputStream()
                 .buffered()
                 .use { inputStream ->

@@ -128,9 +128,9 @@ tasks.named<hydraulic.conveyor.gradle.WriteConveyorConfigTask>("writeConveyorCon
     doLast {
         destination.get().asFile.appendText(
             """
-            |app.fsname = simpmusic
-            |app.display-name = SimpMusic
-            |app.rdns-name = com.maxrave.simpmusic
+            |app.fsname = geras
+            |app.display-name = Geras
+            |app.rdns-name = app.geras.desktop
             |
             |// Override the Gradle-detected classpath with the ProGuard'd
             |// jar directory. Conveyor expands a directory entry to every
@@ -167,7 +167,7 @@ compose.desktop {
             }
             targetFormats(*listTarget.toTypedArray())
             modules("jdk.unsupported")
-            packageName = "SimpMusic"
+            packageName = "Geras"
             macOS {
                 val formatedDate =
                     Instant.now().let {
@@ -195,7 +195,7 @@ compose.desktop {
                             <key>CFBundleTypeRole</key>
                             <string>Viewer</string>
                             <key>CFBundleURLName</key>
-                            <string>com.maxrave.simpmusic.deeplink</string>
+                            <string>app.geras.desktop.deeplink</string>
                             <key>CFBundleURLSchemes</key>
                             <array>
                                 <string>simpmusic</string>
@@ -345,7 +345,7 @@ tasks.register("packageConveyorAppImage") {
     )
 
     doLast {
-        val appName = "SimpMusic"
+        val appName = "Geras"
         val conveyorOutput = rootDir.resolve("output")
         if (!conveyorOutput.exists()) {
             throw GradleException(
@@ -390,7 +390,7 @@ tasks.register("packageConveyorAppImage") {
 
         // Ensure top-level PNG icon expected by appimagetool exists.
         val iconSrc = rootDir.resolve("composeApp/icon/circle_app_icon.png")
-        val iconDst = appDir.resolve("simpmusic.png")
+        val iconDst = appDir.resolve("geras.png")
         if (!iconDst.exists() && iconSrc.exists()) {
             FileUtils.copyFile(iconSrc, iconDst)
         }
@@ -398,7 +398,7 @@ tasks.register("packageConveyorAppImage") {
         val versionName =
             libs.versions.version.name
                 .get()
-        val desktopFile = appDir.resolve("simpmusic.desktop")
+        val desktopFile = appDir.resolve("geras.desktop")
         // This file, not Conveyor's, is what actually reaches the user: AppRun installs it into
         // ~/.local/share/applications and runs update-desktop-database. So every scheme listed in
         // `app.url-schemes` in conveyor.conf has to be repeated here as an x-scheme-handler MIME
@@ -409,13 +409,13 @@ tasks.register("packageConveyorAppImage") {
             """[Desktop Entry]
             |Type=Application
             |Version=1.0
-            |Name=SimpMusic
-            |Comment=SimpMusic v$versionName - FOSS YouTube Music Client
-            |Exec=bin/simpmusic %u
-            |Icon=simpmusic
+            |Name=Geras
+            |Comment=Geras v$versionName - desktop music player
+            |Exec=bin/geras %u
+            |Icon=geras
             |Terminal=false
             |Categories=Audio;AudioVideo;
-            |StartupWMClass=SimpMusic
+            |StartupWMClass=Geras
             |MimeType=x-scheme-handler/simpmusic;x-scheme-handler/wordbyword;
             |
             """.trimMargin(),
@@ -430,9 +430,9 @@ tasks.register("packageConveyorAppImage") {
             |
             |# Install icon into XDG dirs so GNOME/KDE pick it up the first time.
             |ICON_DIR="${'$'}HOME/.local/share/icons/hicolor/256x256/apps"
-            |if [ ! -f "${'$'}ICON_DIR/simpmusic.png" ] || [ "${'$'}HERE/simpmusic.png" -nt "${'$'}ICON_DIR/simpmusic.png" ]; then
+            |if [ ! -f "${'$'}ICON_DIR/geras.png" ] || [ "${'$'}HERE/geras.png" -nt "${'$'}ICON_DIR/geras.png" ]; then
             |    mkdir -p "${'$'}ICON_DIR"
-            |    cp "${'$'}HERE/simpmusic.png" "${'$'}ICON_DIR/simpmusic.png"
+            |    cp "${'$'}HERE/geras.png" "${'$'}ICON_DIR/geras.png"
             |    gtk-update-icon-cache -f -t "${'$'}HOME/.local/share/icons/hicolor" 2>/dev/null || true
             |fi
             |
@@ -440,7 +440,7 @@ tasks.register("packageConveyorAppImage") {
             |DESKTOP_DIR="${'$'}HOME/.local/share/applications"
             |mkdir -p "${'$'}DESKTOP_DIR"
             |APPIMAGE_PATH="${'$'}{APPIMAGE:-${'$'}SELF}"
-            |sed "s|Exec=bin/simpmusic|Exec=${'$'}APPIMAGE_PATH|" "${'$'}HERE/simpmusic.desktop" > "${'$'}DESKTOP_DIR/com-maxrave-simpmusic-MainKt.desktop"
+            |sed "s|Exec=bin/geras|Exec=${'$'}APPIMAGE_PATH|" "${'$'}HERE/geras.desktop" > "${'$'}DESKTOP_DIR/app-geras-desktop.desktop"
             |update-desktop-database "${'$'}DESKTOP_DIR" 2>/dev/null || true
             |
             |# Cap glibc's per-thread malloc arenas.
@@ -457,14 +457,14 @@ tasks.register("packageConveyorAppImage") {
             |export MALLOC_ARENA_MAX=2
             |
             |cd "${'$'}HERE"
-            |exec bin/simpmusic "${'$'}@"
+            |exec bin/geras "${'$'}@"
             |
             """.trimMargin(),
         )
         appRun.setExecutable(true, false)
 
-        // Conveyor's launcher lives at output/bin/simpmusic (lowercase).
-        val appExecutable = appDir.resolve("bin/simpmusic")
+        // Conveyor's launcher lives at output/bin/geras (lowercase).
+        val appExecutable = appDir.resolve("bin/geras")
         if (appExecutable.exists() && !appExecutable.canExecute()) {
             appExecutable.setExecutable(true)
         }
