@@ -39,7 +39,13 @@ jobs:
 
       - name: Stage libmpv (Windows x64)
         shell: bash
-        run: ./gradlew :composeApp:mpvSetupWindowsX64Ci -PisFullBuild=false --no-configuration-cache --stacktrace
+        # First Gradle call also downloads the wrapper distribution; retry transient network failures.
+        run: |
+          for i in 1 2 3; do
+            ./gradlew :composeApp:mpvSetupWindowsX64Ci -PisFullBuild=false --no-configuration-cache --stacktrace && exit 0
+            echo "attempt $i failed, retrying in 20s"; sleep 20
+          done
+          exit 1
 
       - name: Build portable app image
         shell: bash
