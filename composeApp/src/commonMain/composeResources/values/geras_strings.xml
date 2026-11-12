@@ -21,4 +21,13 @@
     <string name="geras_volume">Volume</string>
     <string name="geras_output_device">Output device</string>
     <string name="geras_close_panel">Close panel</string>
+    <string name="geras_audio">Audio</string>
+    <string name="geras_video">Video</string>
+    <string name="geras_no_video">This track has no video</string>
+    <string name="geras_up_next">Next: %1$s</string>
+    <string name="geras_show_lyrics">Lyrics</string>
+    <string name="geras_show_cover">Cover</string>
+    <string name="geras_close_player">Close player</string>
+    <string name="geras_more">More</string>
+    <string name="geras_search_short">Search</string>
 </resources>

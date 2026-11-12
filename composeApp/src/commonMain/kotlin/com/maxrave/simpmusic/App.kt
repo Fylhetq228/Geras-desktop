@@ -1,5 +1,9 @@
 package com.maxrave.simpmusic
 
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import com.maxrave.simpmusic.geras.shell.GerasFullscreenPlayer
+import com.maxrave.simpmusic.geras.shell.LocalGerasSharedTransition
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -148,7 +152,7 @@ import simpmusic.composeapp.generated.resources.update_message
 import simpmusic.composeapp.generated.resources.yes
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class, ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun App(
     viewModel: SharedViewModel = koinInject(),
@@ -624,6 +628,9 @@ fun App(
                 }
             },
             content = { innerPadding ->
+                // Geras: the shell's shared-transition root (bar artwork <-> fullscreen player).
+                SharedTransitionLayout(Modifier.fillMaxSize()) {
+                CompositionLocalProvider(LocalGerasSharedTransition provides this) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -904,21 +911,26 @@ fun App(
                                     isShowNowPlaylistScreen = true
                                 }
                             },
+                            isFullscreenOpen = isGerasNowPlayingOpen,
                             onOpenNowPlaying = { isGerasNowPlayingOpen = true },
                         )
                     }
                     }
                 }
 
-                // Interim full player for layout B until the fullscreen player step replaces it.
-                if (isGerasNowPlayingOpen && isDesktopShell) {
-                    ForceDarkContent {
-                        NowPlayingScreen(
-                            navController = navController,
-                        ) {
-                            isGerasNowPlayingOpen = false
-                        }
-                    }
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = isGerasNowPlayingOpen && isDesktopShell,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    GerasFullscreenPlayer(
+                        visibilityScope = this,
+                        navController = navController,
+                        onOpenSearch = { navController.navigate(SearchDestination) },
+                        onClose = { isGerasNowPlayingOpen = false },
+                    )
+                }
+                }
                 }
 
                 if (isShowNowPlaylistScreen && !isTabletLandscape && !isDesktopShell) {

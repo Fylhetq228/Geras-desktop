@@ -21,4 +21,13 @@
     <string name="geras_volume">Громкость</string>
     <string name="geras_output_device">Устройство вывода</string>
     <string name="geras_close_panel">Закрыть панель</string>
+    <string name="geras_audio">Аудио</string>
+    <string name="geras_video">Видео</string>
+    <string name="geras_no_video">У этого трека нет клипа</string>
+    <string name="geras_up_next">Далее: %1$s</string>
+    <string name="geras_show_lyrics">Текст</string>
+    <string name="geras_show_cover">Обложка</string>
+    <string name="geras_close_player">Закрыть плеер</string>
+    <string name="geras_more">Ещё</string>
+    <string name="geras_search_short">Поиск</string>
 </resources>

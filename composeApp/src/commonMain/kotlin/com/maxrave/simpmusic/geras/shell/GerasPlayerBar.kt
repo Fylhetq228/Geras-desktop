@@ -1,6 +1,8 @@
 package com.maxrave.simpmusic.geras.shell
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -118,6 +120,7 @@ private object BarSpec {
 @Composable
 fun GerasPlayerBar(
     isRightPanelOpen: Boolean,
+    isFullscreenOpen: Boolean,
     onToggleLyricsPanel: () -> Unit,
     onOpenNowPlaying: () -> Unit,
     modifier: Modifier = Modifier,
@@ -151,19 +154,25 @@ fun GerasPlayerBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Box(
-                Modifier
-                    .size(BarSpec.Artwork)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                    .clickable(enabled = songEntity != null, onClick = onOpenNowPlaying),
-            ) {
-                AsyncImage(
-                    model = songEntity?.thumbnails,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(BarSpec.Artwork),
-                )
+            // Fixed slot: the artwork leaves for the fullscreen player (shared element) and comes back.
+            Box(Modifier.size(BarSpec.Artwork)) {
+                androidx.compose.animation.AnimatedVisibility(visible = !isFullscreenOpen, enter = fadeIn(), exit = fadeOut()) {
+                    Box(
+                        Modifier
+                            .size(BarSpec.Artwork)
+                            .gerasSharedArtwork(this)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                            .clickable(enabled = songEntity != null, onClick = onOpenNowPlaying),
+                    ) {
+                        AsyncImage(
+                            model = songEntity?.thumbnails,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(BarSpec.Artwork),
+                        )
+                    }
+                }
             }
             Column(Modifier.widthIn(max = BarSpec.TrackWidth)) {
                 Text(

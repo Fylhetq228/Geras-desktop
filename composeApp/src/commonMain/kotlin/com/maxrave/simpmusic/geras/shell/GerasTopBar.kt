@@ -76,6 +76,7 @@ fun GerasTopBar(
             )
             Text("Ctrl+K", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
         }
-        caption?.CaptionButtons(Modifier.align(Alignment.TopEnd))
+        // Covered by the fullscreen player when disabled: its own top row then owns the buttons.
+        if (captionEnabled) caption?.CaptionButtons(Modifier.align(Alignment.TopEnd))
     }
 }
