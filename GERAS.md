@@ -61,18 +61,24 @@ for Geras work:**
 5. Fixes from the first real run: cover palette fed from the artwork, caption child-HWND
    hit-test, lyrics panel inset, Ctrl+Q quits for real.
 
-Verified on the owner's PC (first build): app starts, playback, fullscreen player, seek-bar
-hover time, main shell, right-panel lyrics. **Not yet verified after the fixes**: window drag by
-the top strip, caption-button hover, snap layouts flyout, palette background, Ctrl+Q.
+6. Animated lyrics, core — `geras/lyrics/GerasLyricsModel.kt`, `GerasLyricsLine.kt`,
+   `GerasLyricsView.kt`. Fill style **C** (owner's pick): soft white wipe, glow + swell on held
+   words. Drawn in the draw phase from one `TextLayoutResult` per line; ad-libs italic, dots in
+   gaps, spring autoscroll (3.5 s pause after manual scroll), click-to-seek, speed-aware
+   playhead, line translation. Line-synced sheets get word timings estimated by word length.
+   Used by the right panel and the fullscreen player; upstream `LyricsView` is untouched.
+
+Verified on the owner's PC: app starts, playback, fullscreen player, seek-bar hover time, main
+shell; caption hit-testing probed with WM_NCHITTEST (strip = HTCAPTION, buttons = MIN/MAX/CLOSE,
+search capsule = client); lyrics wipe on a line-synced track in the right panel at 135–144 fps.
+**Not yet verified by eye**: caption-button hover, snap layouts flyout, palette background,
+Ctrl+Q; lyrics on a RICH_SYNCED track (glow/swell, gap dots) and in the fullscreen player.
 
 ## Next, in order
 
-1. Verify the fixes above on a local run.
-2. Animated lyrics (main feature): word-by-word gradient wipe at 60+ fps, ad-libs in italics,
-   spring autoscroll with pause on manual scroll, click-to-seek, "…" in gaps, speed-aware
-   timings, F11 fullscreen + always-on-top karaoke window, translation, share card PNG.
-   Upstream already has rich sync and an Apple-Music renderer to build on. Show the owner live
-   mockups of 2–3 fill styles first.
+1. Owner eyeballs the "not yet verified" list above.
+2. Animated lyrics, remaining: F11 fullscreen + always-on-top karaoke window, share card PNG,
+   translation toggle in the panel.
 3. Sound: speed chip popover (0.5–2.0x step 0.01, pitch, linked/unlinked), presets
    Slowed+Reverb / Sped Up / Nightcore / Daycore, bass boost, EQ curve editor with per-device
    presets + A/B, per-track memory, exclusive WASAPI. Respect upstream's crossfade lock on
