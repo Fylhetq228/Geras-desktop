@@ -80,7 +80,7 @@ import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.extension.rememberPaletteColor
 import com.maxrave.simpmusic.extension.toImmersiveBackground
 import com.maxrave.simpmusic.geras.window.LocalWindowCaption
-import com.maxrave.simpmusic.ui.component.LyricsView
+import com.maxrave.simpmusic.geras.lyrics.GerasLyricsView
 import com.maxrave.simpmusic.ui.component.NowPlayingBottomSheet
 import com.maxrave.simpmusic.ui.icon.KeyboardArrowDown
 import com.maxrave.simpmusic.ui.icon.MoreVert
@@ -274,12 +274,15 @@ fun GerasFullscreenPlayer(
                                             modifier = Modifier.align(Alignment.Center),
                                         )
                                     } else {
-                                        LyricsView(
+                                        val controller by sharedViewModel.controllerState.collectAsStateWithLifecycle()
+                                        GerasLyricsView(
                                             lyricsData = lyrics,
                                             timeLine = sharedViewModel.timeline,
-                                            onLineClick = { sharedViewModel.onUIEvent(UIEvent.UpdateProgress(it)) },
-                                            backgroundColor = base,
-                                            showScrollShadows = true,
+                                            isPlaying = controller.isPlaying,
+                                            onSeekPercent = { sharedViewModel.onUIEvent(UIEvent.UpdateProgress(it)) },
+                                            fontSize = 32.sp,
+                                            centered = true,
+                                            anchor = 0.36f,
                                             modifier = Modifier.fillMaxSize(),
                                         )
                                     }

@@ -35,7 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.maxrave.domain.mediaservice.handler.MediaPlayerHandler
 import com.maxrave.simpmusic.extension.formatDuration
-import com.maxrave.simpmusic.ui.component.LyricsView
+import com.maxrave.simpmusic.geras.lyrics.GerasLyricsView
 import com.maxrave.simpmusic.ui.icon.Close
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.viewModel.SharedViewModel
@@ -139,13 +139,12 @@ private fun LyricsTab(sharedViewModel: SharedViewModel) {
         EmptyHint(stringResource(Res.string.geras_no_lyrics))
         return
     }
-    // The karaoke renderer is replaced wholesale in the lyrics step; the base view carries it until then.
-    LyricsView(
+    val controller by sharedViewModel.controllerState.collectAsStateWithLifecycle()
+    GerasLyricsView(
         lyricsData = lyrics,
         timeLine = sharedViewModel.timeline,
-        onLineClick = { percent -> sharedViewModel.onUIEvent(UIEvent.UpdateProgress(percent)) },
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-        showScrollShadows = true,
+        isPlaying = controller.isPlaying,
+        onSeekPercent = { percent -> sharedViewModel.onUIEvent(UIEvent.UpdateProgress(percent)) },
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
     )
 }
