@@ -1,0 +1,78 @@
+# Geras: portable Windows build on every push to main.
+# Output: Geras-windows.zip (app + bundled JRE + libmpv) as a run artifact and as the asset of the
+# rolling "latest" pre-release, so there is always one stable download link.
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Point Gradle at the runner's Android SDK
+        shell: pwsh
+        run: |
+          $sdk = $env:ANDROID_HOME -replace '\\', '\\'
+          "sdk.dir=$sdk" | Out-File -Encoding ascii local.properties
+
+      - name: Stage libmpv (Windows x64)
+        shell: bash
+        run: ./gradlew :composeApp:mpvSetupWindowsX64Ci -PisFullBuild=false --no-configuration-cache --stacktrace
+
+      - name: Build portable app image
+        shell: bash
+        run: ./gradlew :desktopApp:createDistributable -PisFullBuild=false --no-configuration-cache --stacktrace
+
+      - name: Zip
+        shell: pwsh
+        run: |
+          $app = Get-ChildItem desktopApp/build/compose/binaries/main/app -Directory | Select-Object -First 1
+          if (-not $app) { throw "no app image produced" }
+          Get-ChildItem $app.FullName | Format-Table Name, Length
+          Compress-Archive -Path $app.FullName -DestinationPath Geras-windows.zip
+          "{0:N1} MB" -f ((Get-Item Geras-windows.zip).Length / 1MB)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Geras-windows
+          path: Geras-windows.zip
+          retention-days: 14
+
+      - name: Move the "latest" tag to this commit
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          git tag -f latest
+          git push -f origin latest
+
+      - name: Publish to the "latest" pre-release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Geras — latest build
+          prerelease: true
+          body: "Automatic build of ${{ github.sha }}. Download Geras-windows.zip, unzip, run Geras.exe."
+          files: Geras-windows.zip
