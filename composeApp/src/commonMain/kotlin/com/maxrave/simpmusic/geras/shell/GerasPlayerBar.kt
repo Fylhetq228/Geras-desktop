@@ -66,6 +66,7 @@ import coil3.compose.AsyncImage
 import com.maxrave.domain.data.entities.DownloadState
 import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.domain.mediaservice.handler.MediaPlayerHandler
+import com.maxrave.simpmusic.expect.ui.toImageBitmap
 import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.ui.component.PlaybackSpeedPitchBottomSheet
 import com.maxrave.simpmusic.ui.component.PlayerControlLayout
@@ -170,6 +171,8 @@ fun GerasPlayerBar(
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.size(BarSpec.Artwork),
+                            // Feeds the cover colours before the fullscreen player opens.
+                            onSuccess = { sharedViewModel.setBitmap(it.result.image.toImageBitmap()) },
                         )
                     }
                 }

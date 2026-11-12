@@ -75,6 +75,7 @@ import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.domain.mediaservice.handler.MediaPlayerHandler
 import com.maxrave.domain.mediaservice.handler.RepeatState
 import com.maxrave.simpmusic.expect.ui.MediaPlayerViewWithSubtitle
+import com.maxrave.simpmusic.expect.ui.toImageBitmap
 import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.extension.rememberPaletteColor
 import com.maxrave.simpmusic.extension.toImmersiveBackground
@@ -257,6 +258,9 @@ fun GerasFullscreenPlayer(
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.fillMaxSize(),
+                                            // The palette reads screenData.bitmap, which only the base
+                                            // Now Playing screen used to fill; desktop never opens it.
+                                            onSuccess = { sharedViewModel.setBitmap(it.result.image.toImageBitmap()) },
                                         )
                                     }
                                 }
