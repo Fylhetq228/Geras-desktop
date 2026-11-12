@@ -24,6 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +41,9 @@ import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.geras.lyrics.GerasLyricsView
 import com.maxrave.simpmusic.geras.lyrics.GerasKaraoke
 import com.maxrave.simpmusic.ui.icon.Close
+import com.maxrave.simpmusic.geras.lyrics.GerasShareLyrics
 import com.maxrave.simpmusic.ui.icon.OpenInNew
+import com.maxrave.simpmusic.ui.icon.Share
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.viewModel.SharedViewModel
 import com.maxrave.simpmusic.viewModel.UIEvent
@@ -53,6 +58,7 @@ import simpmusic.composeapp.generated.resources.geras_about_album
 import simpmusic.composeapp.generated.resources.geras_about_views
 import simpmusic.composeapp.generated.resources.geras_close_panel
 import simpmusic.composeapp.generated.resources.geras_karaoke_window
+import simpmusic.composeapp.generated.resources.geras_share_lyrics
 import simpmusic.composeapp.generated.resources.geras_no_lyrics
 import simpmusic.composeapp.generated.resources.geras_nothing_playing
 import simpmusic.composeapp.generated.resources.geras_queue_empty
@@ -74,6 +80,8 @@ fun GerasRightPanel(
     modifier: Modifier = Modifier,
     sharedViewModel: SharedViewModel = koinInject(),
 ) {
+    var showShare by remember { mutableStateOf(false) }
+    if (showShare) GerasShareLyrics(sharedViewModel) { showShare = false }
     Column(
         modifier
             .clip(RoundedCornerShape(12.dp))
@@ -88,6 +96,16 @@ fun GerasRightPanel(
             TabChip(stringResource(Res.string.geras_tab_queue), tab == RightPanelTab.Queue) { onTabChange(RightPanelTab.Queue) }
             TabChip(stringResource(Res.string.geras_tab_about), tab == RightPanelTab.About) { onTabChange(RightPanelTab.About) }
             Box(Modifier.weight(1f))
+            if (tab == RightPanelTab.Lyrics) {
+                IconButton(onClick = { showShare = true }, modifier = Modifier.size(32.dp)) {
+                    Icon(
+                        SimpIcons.Share,
+                        contentDescription = stringResource(Res.string.geras_share_lyrics),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
             if (tab == RightPanelTab.Lyrics && GerasKaraoke.available) {
                 IconButton(onClick = { GerasKaraoke.isOpen = !GerasKaraoke.isOpen }, modifier = Modifier.size(32.dp)) {
                     Icon(
