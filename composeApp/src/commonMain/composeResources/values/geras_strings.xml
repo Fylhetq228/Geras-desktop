@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="geras_search_placeholder">Track, artist, link or a line from a song</string>
+    <string name="geras_tab_lyrics">Lyrics</string>
+    <string name="geras_tab_queue">Queue</string>
+    <string name="geras_tab_about">About</string>
+    <string name="geras_no_lyrics">No lyrics for this track</string>
+    <string name="geras_queue_empty">Queue is empty</string>
+    <string name="geras_nothing_playing">Nothing is playing</string>
+    <string name="geras_about_album">Album</string>
+    <string name="geras_about_artist">Artist</string>
+    <string name="geras_about_duration">Duration</string>
+    <string name="geras_about_views">Views</string>
+    <string name="geras_about_published">Published</string>
+    <string name="geras_about_description">Description</string>
+    <string name="geras_like">Like</string>
+    <string name="geras_download">Download</string>
+    <string name="geras_lyrics_panel">Lyrics</string>
+    <string name="geras_equalizer">Equalizer</string>
+    <string name="geras_speed">Playback speed</string>
+    <string name="geras_volume">Volume</string>
+    <string name="geras_output_device">Output device</string>
+    <string name="geras_close_panel">Close panel</string>
+</resources>

@@ -134,8 +134,9 @@ class LibrarySidebarViewModel(
     val collapsed: StateFlow<Boolean> =
         dataStoreManager
             .getString(COLLAPSED_KEY)
-            .map { it == DataStoreManager.TRUE }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+            // Geras layout B: the sidebar starts as an icon rail until the user expands it.
+            .map { it != DataStoreManager.FALSE }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     fun refresh() {
         refreshes.update { it + 1 }

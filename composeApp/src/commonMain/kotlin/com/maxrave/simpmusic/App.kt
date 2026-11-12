@@ -73,6 +73,11 @@ import com.maxrave.simpmusic.expect.openUrl
 import com.maxrave.simpmusic.expect.ui.layerBackdrop
 import com.maxrave.simpmusic.expect.ui.rememberBackdrop
 import com.maxrave.simpmusic.extension.copy
+import com.maxrave.simpmusic.geras.shell.GERAS_RIGHT_PANEL_WIDTH
+import com.maxrave.simpmusic.geras.shell.GerasPlayerBar
+import com.maxrave.simpmusic.geras.shell.GerasRightPanel
+import com.maxrave.simpmusic.geras.shell.GerasTopBar
+import com.maxrave.simpmusic.geras.shell.RightPanelTab
 import com.maxrave.simpmusic.ui.component.AppBottomNavigationBar
 import com.maxrave.simpmusic.ui.component.AppNavigationRail
 import com.maxrave.simpmusic.ui.component.DesktopSidebar
@@ -195,6 +200,10 @@ fun App(
     var isShowNowPlaylistScreen by rememberSaveable {
         mutableStateOf(false)
     }
+
+    // Geras layout B (desktop): right panel tab and the interim full player overlay.
+    var gerasPanelTab by rememberSaveable { mutableStateOf(RightPanelTab.Lyrics) }
+    var isGerasNowPlayingOpen by rememberSaveable { mutableStateOf(false) }
 
     // Fullscreen
     var isInFullscreen by rememberSaveable {
@@ -678,8 +687,13 @@ fun App(
                             )
                         }
                     }
+                    val gerasShell = isDesktopShell && !isInFullscreen
+                    Column(Modifier.fillMaxSize()) {
+                    if (gerasShell) {
+                        GerasTopBar(onOpenSearch = { navController.navigate(SearchDestination) })
+                    }
                     Row(
-                        Modifier.fillMaxSize(),
+                        Modifier.fillMaxWidth().weight(1f),
                     ) {
                         // Everything left of Now Playing. On Desktop the capsule player sits on the centre of
                         // this whole area, sidebar included, so it lives here rather than in the content panel,
@@ -785,11 +799,29 @@ fun App(
                                     }
                                 }
                             }
-                            if (isDesktopShell) {
+                            // Layout B replaces the floating capsule with the persistent GerasPlayerBar below.
+                            if (isDesktopShell && !gerasShell) {
                                 tabletMiniPlayer(Modifier.padding(innerPadding).align(Alignment.BottomCenter))
                             }
                         }
-                        if (isTablet && isTabletLandscape && !isInFullscreen) {
+                        if (gerasShell) {
+                            AnimatedVisibility(
+                                isShowNowPlaylistScreen,
+                                enter = expandHorizontally() + fadeIn(),
+                                exit = fadeOut() + shrinkHorizontally(),
+                            ) {
+                                GerasRightPanel(
+                                    tab = gerasPanelTab,
+                                    onTabChange = { gerasPanelTab = it },
+                                    onClose = { isShowNowPlaylistScreen = false },
+                                    modifier =
+                                        Modifier
+                                            .fillMaxHeight()
+                                            .width(GERAS_RIGHT_PANEL_WIDTH)
+                                            .padding(top = 8.dp, end = 8.dp, bottom = 8.dp),
+                                )
+                            }
+                        } else if (isTablet && isTabletLandscape && !isInFullscreen) {
                             AnimatedVisibility(
                                 isShowNowPlaylistScreen,
                                 enter = expandHorizontally() + fadeIn(),
@@ -858,9 +890,35 @@ fun App(
                             }
                         }
                     }
+                    if (gerasShell) {
+                        GerasPlayerBar(
+                            isRightPanelOpen = isShowNowPlaylistScreen && gerasPanelTab == RightPanelTab.Lyrics,
+                            onToggleLyricsPanel = {
+                                if (isShowNowPlaylistScreen && gerasPanelTab == RightPanelTab.Lyrics) {
+                                    isShowNowPlaylistScreen = false
+                                } else {
+                                    gerasPanelTab = RightPanelTab.Lyrics
+                                    isShowNowPlaylistScreen = true
+                                }
+                            },
+                            onOpenNowPlaying = { isGerasNowPlayingOpen = true },
+                        )
+                    }
+                    }
                 }
 
-                if (isShowNowPlaylistScreen && !isTabletLandscape) {
+                // Interim full player for layout B until the fullscreen player step replaces it.
+                if (isGerasNowPlayingOpen && isDesktopShell) {
+                    ForceDarkContent {
+                        NowPlayingScreen(
+                            navController = navController,
+                        ) {
+                            isGerasNowPlayingOpen = false
+                        }
+                    }
+                }
+
+                if (isShowNowPlaylistScreen && !isTabletLandscape && !isDesktopShell) {
                     ForceDarkContent {
                         NowPlayingScreen(
                             navController = navController,

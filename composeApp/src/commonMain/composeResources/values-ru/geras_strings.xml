@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="geras_search_placeholder">Трек, артист, ссылка или строчка из песни</string>
+    <string name="geras_tab_lyrics">Текст</string>
+    <string name="geras_tab_queue">Очередь</string>
+    <string name="geras_tab_about">О треке</string>
+    <string name="geras_no_lyrics">Для этого трека нет текста</string>
+    <string name="geras_queue_empty">Очередь пуста</string>
+    <string name="geras_nothing_playing">Ничего не играет</string>
+    <string name="geras_about_album">Альбом</string>
+    <string name="geras_about_artist">Артист</string>
+    <string name="geras_about_duration">Длительность</string>
+    <string name="geras_about_views">Просмотры</string>
+    <string name="geras_about_published">Опубликовано</string>
+    <string name="geras_about_description">Описание</string>
+    <string name="geras_like">Нравится</string>
+    <string name="geras_download">Скачать</string>
+    <string name="geras_lyrics_panel">Текст</string>
+    <string name="geras_equalizer">Эквалайзер</string>
+    <string name="geras_speed">Скорость воспроизведения</string>
+    <string name="geras_volume">Громкость</string>
+    <string name="geras_output_device">Устройство вывода</string>
+    <string name="geras_close_panel">Закрыть панель</string>
+</resources>
