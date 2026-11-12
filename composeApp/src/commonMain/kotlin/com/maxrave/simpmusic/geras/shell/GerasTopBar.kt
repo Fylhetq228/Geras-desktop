@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.maxrave.simpmusic.geras.window.LocalWindowCaption
 import com.maxrave.simpmusic.ui.icon.Search
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import org.jetbrains.compose.resources.stringResource
@@ -32,19 +33,26 @@ import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.geras_search_placeholder
 
 /**
- * Layout B top strip: the search capsule, centred over the whole window. Clicking it opens the
- * search page; the custom title bar step moves this strip into the window caption.
+ * Layout B top strip: the search capsule, centred over the whole window. Where the app draws its
+ * own caption (Windows) the strip IS the title bar: it drags the window and carries the caption
+ * buttons; [captionEnabled] = false hands the strip back to whatever is drawn over it.
  */
 @Composable
 fun GerasTopBar(
     onOpenSearch: () -> Unit,
     modifier: Modifier = Modifier,
+    captionEnabled: Boolean = true,
 ) {
     val hover = remember { MutableInteractionSource() }
     val hovered by hover.collectIsHoveredAsState()
-    Box(modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
+    val caption = LocalWindowCaption.current
+    val stripModifier =
+        if (caption != null) with(caption) { Modifier.captionArea(captionEnabled) } else Modifier
+    val searchModifier =
+        if (caption != null) with(caption) { Modifier.captionInteractive() } else Modifier
+    Box(modifier.fillMaxWidth().height(48.dp).then(stripModifier), contentAlignment = Alignment.Center) {
         Row(
-            Modifier
+            searchModifier
                 .widthIn(min = 320.dp, max = 520.dp)
                 .fillMaxWidth(0.45f)
                 .height(36.dp)
@@ -68,5 +76,6 @@ fun GerasTopBar(
             )
             Text("Ctrl+K", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
         }
+        caption?.CaptionButtons(Modifier.align(Alignment.TopEnd))
     }
 }

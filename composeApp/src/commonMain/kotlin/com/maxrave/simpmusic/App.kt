@@ -690,7 +690,10 @@ fun App(
                     val gerasShell = isDesktopShell && !isInFullscreen
                     Column(Modifier.fillMaxSize()) {
                     if (gerasShell) {
-                        GerasTopBar(onOpenSearch = { navController.navigate(SearchDestination) })
+                        GerasTopBar(
+                            onOpenSearch = { navController.navigate(SearchDestination) },
+                            captionEnabled = !isGerasNowPlayingOpen,
+                        )
                     }
                     Row(
                         Modifier.fillMaxWidth().weight(1f),

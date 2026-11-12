@@ -1,5 +1,8 @@
 package com.maxrave.simpmusic
 
+import androidx.compose.runtime.CompositionLocalProvider
+import com.maxrave.simpmusic.geras.window.LocalWindowCaption
+import com.maxrave.simpmusic.geras.window.WindowsCaption
 import com.maxrave.common.AppDirs
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -499,13 +502,27 @@ fun runDesktopApp(args: Array<String> = emptyArray()) {
                             .build()
                     imageLoader
                 }
-                App(
-                    showDesktopNotificationPermissionDialog = showNotificationPermissionDialog,
-                    onDismissDesktopNotificationPermissionDialog =
-                        desktopNotificationManager::dismissPermissionDialog,
-                    onOpenDesktopNotificationSettings =
-                        desktopNotificationManager::openNotificationSettings,
-                )
+                // Geras: on Windows the app draws its own caption (snap layouts kept, see WindowsCaption).
+                var gerasCaption by remember { mutableStateOf<WindowsCaption?>(null) }
+                LaunchedEffect(window, isVisible) {
+                    if (gerasCaption == null && isVisible && WindowsCaption.isSupported) {
+                        gerasCaption = WindowsCaption.install(window, window.windowHandle)
+                    }
+                }
+                val captionThemeMode by sharedViewModel
+                    .getThemeMode()
+                    .collectAsState(DataStoreManager.THEME_MODE_DARK)
+                val captionDark = isDarkTheme(captionThemeMode)
+                LaunchedEffect(gerasCaption, captionDark) { gerasCaption?.setDarkFrame(captionDark) }
+                CompositionLocalProvider(LocalWindowCaption provides gerasCaption) {
+                    App(
+                        showDesktopNotificationPermissionDialog = showNotificationPermissionDialog,
+                        onDismissDesktopNotificationPermissionDialog =
+                            desktopNotificationManager::dismissPermissionDialog,
+                        onOpenDesktopNotificationSettings =
+                            desktopNotificationManager::openNotificationSettings,
+                    )
+                }
                 ToastHost()
             }
         }
