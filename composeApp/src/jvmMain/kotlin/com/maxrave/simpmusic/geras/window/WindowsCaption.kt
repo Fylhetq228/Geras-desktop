@@ -60,6 +60,7 @@ private object Hit {
 }
 
 private const val GWLP_WNDPROC = -4
+private const val HTTRANSPARENT = -1L
 private const val SM_CXFRAME = 32
 private const val SM_CYFRAME = 33
 private const val SM_CXPADDEDBORDER = 92
@@ -138,6 +139,8 @@ private interface User32X : Library {
     fun SetWindowPos(hWnd: Pointer, after: Pointer?, x: Int, y: Int, cx: Int, cy: Int, flags: Int): Boolean
 
     fun TrackMouseEvent(track: TrackMouse): Boolean
+
+    fun EnumChildWindows(hWndParent: Pointer, lpEnumFunc: EnumProc, lParam: Pointer?): Boolean
 }
 
 @Suppress("FunctionName")
@@ -145,6 +148,10 @@ private interface DwmApi : Library {
     fun DwmExtendFrameIntoClientArea(hWnd: Pointer, margins: DwmMargins): Int
 
     fun DwmSetWindowAttribute(hWnd: Pointer, attr: Int, value: IntByReference, size: Int): Int
+}
+
+private interface EnumProc : Callback {
+    fun callback(hWnd: Pointer, lParam: Pointer?): Boolean
 }
 
 private interface WndProc : Callback {
@@ -185,6 +192,43 @@ class WindowsCaption private constructor(
 
     private var original: Pointer? = null
 
+    // AWT puts the Compose canvas in child windows that cover the whole client area, so mouse
+    // hit-tests over the caption land on them, never on the frame. Each child answers
+    // HTTRANSPARENT where the frame owns the point, which hands the message to the frame.
+    private val childOriginals = ConcurrentHashMap<Long, Pointer>()
+    private val childProc =
+        object : WndProc {
+            override fun callback(hWnd: Pointer, msg: Int, wParam: Long, lParam: Long): Long {
+                val prev = childOriginals[Pointer.nativeValue(hWnd)] ?: return 0L
+                return try {
+                    if (msg == Msg.WM_NCHITTEST && clientHit(lParam) != Hit.HTCLIENT) {
+                        HTTRANSPARENT
+                    } else {
+                        user32.CallWindowProcW(prev, hWnd, msg, wParam, lParam)
+                    }
+                } catch (t: Throwable) {
+                    Logger.e("WindowsCaption", "child wndproc failed on msg=$msg", t)
+                    user32.CallWindowProcW(prev, hWnd, msg, wParam, lParam)
+                }
+            }
+        }
+    private val enumChildren =
+        object : EnumProc {
+            override fun callback(hWnd: Pointer, lParam: Pointer?): Boolean {
+                val key = Pointer.nativeValue(hWnd)
+                if (!childOriginals.containsKey(key)) {
+                    childOriginals[key] = Pointer(user32.GetWindowLongPtrW(hWnd, GWLP_WNDPROC))
+                    user32.SetWindowLongPtrW(hWnd, GWLP_WNDPROC, Pointer.nativeValue(CallbackReference.getFunctionPointer(childProc)))
+                }
+                return true
+            }
+        }
+
+    /** Subclasses child windows not seen yet; AWT can create the canvas after the frame. */
+    private fun hookChildren() {
+        user32.EnumChildWindows(hwnd, enumChildren, null)
+    }
+
     // Held strongly: JNA frees the native thunk once the callback object is collected.
     private val proc =
         object : WndProc {
@@ -207,6 +251,7 @@ class WindowsCaption private constructor(
         // A 1px top margin keeps the DWM shadow and border once the caption is gone.
         dwm.DwmExtendFrameIntoClientArea(hwnd, DwmMargins().apply { cyTopHeight = 1 })
         maximized.value = user32.IsZoomed(hwnd)
+        hookChildren()
         user32.SetWindowPos(
             hwnd, null, 0, 0, 0, 0,
             SWP_FRAMECHANGED or SWP_NOMOVE or SWP_NOSIZE or SWP_NOZORDER or SWP_NOACTIVATE,
@@ -216,6 +261,7 @@ class WindowsCaption private constructor(
             val size = window.size
             window.setSize(size.width, size.height + 1)
             window.setSize(size.width, size.height)
+            hookChildren()
         }
         Logger.i("WindowsCaption", "custom caption installed")
     }
@@ -259,36 +305,7 @@ class WindowsCaption private constructor(
             Msg.WM_NCHITTEST -> {
                 val base = callOriginal(hWnd, msg, wParam, lParam)
                 if (base != Hit.HTCLIENT) return base
-                val pt =
-                    WinPoint().apply {
-                        x = (lParam and 0xFFFF).toShort().toInt()
-                        y = ((lParam shr 16) and 0xFFFF).toShort().toInt()
-                    }
-                user32.ScreenToClient(hWnd, pt)
-                val zoomed = user32.IsZoomed(hWnd)
-                if (!zoomed && pt.y < frameY()) {
-                    val client = WinRect().also { user32.GetClientRect(hWnd, it) }
-                    val corner = frameX() * 2
-                    return when {
-                        pt.x < corner -> Hit.HTTOPLEFT
-                        pt.x >= client.right - corner -> Hit.HTTOPRIGHT
-                        else -> Hit.HTTOP
-                    }
-                }
-                buttons.forEach { (button, rect) ->
-                    if (rect.contains(pt.x, pt.y)) {
-                        return when (button) {
-                            CaptionButton.Minimize -> Hit.HTMINBUTTON
-                            CaptionButton.Maximize -> Hit.HTMAXBUTTON
-                            CaptionButton.Close -> Hit.HTCLOSE
-                        }
-                    }
-                }
-                val strip = caption ?: return Hit.HTCLIENT
-                if (strip.contains(pt.x, pt.y) && interactive.values.none { it.contains(pt.x, pt.y) }) {
-                    return Hit.HTCAPTION
-                }
-                return Hit.HTCLIENT
+                return clientHit(lParam)
             }
 
             Msg.WM_NCMOUSEMOVE -> {
@@ -330,10 +347,44 @@ class WindowsCaption private constructor(
             Msg.WM_SIZE -> {
                 val result = callOriginal(hWnd, msg, wParam, lParam)
                 maximized.value = user32.IsZoomed(hWnd)
+                hookChildren()
                 return result
             }
         }
         return callOriginal(hWnd, msg, wParam, lParam)
+    }
+
+    /** What the frame owns at screen point [lParam] inside its client area. */
+    private fun clientHit(lParam: Long): Long {
+        val pt =
+            WinPoint().apply {
+                x = (lParam and 0xFFFF).toShort().toInt()
+                y = ((lParam shr 16) and 0xFFFF).toShort().toInt()
+            }
+        user32.ScreenToClient(hwnd, pt)
+        if (!user32.IsZoomed(hwnd) && pt.y < frameY()) {
+            val client = WinRect().also { user32.GetClientRect(hwnd, it) }
+            val corner = frameX() * 2
+            return when {
+                pt.x < corner -> Hit.HTTOPLEFT
+                pt.x >= client.right - corner -> Hit.HTTOPRIGHT
+                else -> Hit.HTTOP
+            }
+        }
+        buttons.forEach { (button, rect) ->
+            if (rect.contains(pt.x, pt.y)) {
+                return when (button) {
+                    CaptionButton.Minimize -> Hit.HTMINBUTTON
+                    CaptionButton.Maximize -> Hit.HTMAXBUTTON
+                    CaptionButton.Close -> Hit.HTCLOSE
+                }
+            }
+        }
+        val strip = caption ?: return Hit.HTCLIENT
+        if (strip.contains(pt.x, pt.y) && interactive.values.none { it.contains(pt.x, pt.y) }) {
+            return Hit.HTCAPTION
+        }
+        return Hit.HTCLIENT
     }
 
     private fun perform(button: CaptionButton) {

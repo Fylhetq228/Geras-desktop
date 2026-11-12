@@ -146,7 +146,7 @@ private fun LyricsTab(sharedViewModel: SharedViewModel) {
         onLineClick = { percent -> sharedViewModel.onUIEvent(UIEvent.UpdateProgress(percent)) },
         backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
         showScrollShadows = true,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
     )
 }
 
